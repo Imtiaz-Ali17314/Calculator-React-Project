@@ -1,7 +1,16 @@
 import styles from "./Display.module.css";
-const Display = ({ displayVal }) => {
+
+const Display = ({ currentVal, expression }) => {
   return (
-    <input type="text" className={styles.display} value={displayVal} readOnly />
+    <div className={styles.displayContainer}>
+      <div className={styles.expression}>{expression}</div>
+      <input 
+        type="text" 
+        className={styles.display} 
+        value={currentVal || "0"} 
+        readOnly 
+      />
+    </div>
   );
 };
 
