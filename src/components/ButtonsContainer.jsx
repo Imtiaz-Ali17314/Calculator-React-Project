@@ -31,7 +31,7 @@ const ButtonsContainer = ({ onButtonClick }) => {
           className={`${styles.button} ${styles[btn.type]}`}
           onClick={() => onButtonClick(btn.value || btn.label)}
         >
-          {btn.label}
+          <span>{btn.label}</span>
         </button>
       ))}
     </div>

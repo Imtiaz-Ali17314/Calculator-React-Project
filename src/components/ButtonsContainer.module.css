@@ -1,64 +1,110 @@
 .buttonsContainer {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 .button {
+  position: relative;
   width: 100%;
-  height: 60px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-primary);
-  font-size: 1.4rem;
-  font-weight: 500;
+  height: 64px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(20, 20, 30, 0.5);
+  backdrop-filter: blur(5px);
+  color: #fff;
+  font-family: var(--font-main);
+  font-size: 1.6rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+  z-index: 0;
+}
+
+.button:hover::before {
+  width: 150px;
+  height: 150px;
 }
 
 .button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  background: rgba(40, 40, 60, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
 .button:active {
-  transform: translateY(0);
-  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(1px);
+  transition: all 0.1s;
 }
 
+.button > span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Specifics */
 .operator {
-  background: rgba(99, 102, 241, 0.2);
-  color: #818cf8;
-  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--neon-cyan);
+  background: rgba(0, 243, 255, 0.05);
+  border-color: rgba(0, 243, 255, 0.2);
 }
 
 .operator:hover {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(0, 243, 255, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 243, 255, 0.2), 0 0 20px rgba(0, 243, 255, 0.4);
+}
+
+.operator:hover::before {
+  background: rgba(0, 243, 255, 0.2);
 }
 
 .clear {
-  color: #fca5a5;
-  background: rgba(239, 68, 68, 0.1);
+  color: var(--neon-pink);
+  background: rgba(255, 0, 234, 0.05);
+  border-color: rgba(255, 0, 234, 0.2);
 }
 
 .clear:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(255, 0, 234, 0.15);
+  box-shadow: 0 8px 25px rgba(255, 0, 234, 0.2), 0 0 20px rgba(255, 0, 234, 0.4);
+}
+
+.clear:hover::before {
+  background: rgba(255, 0, 234, 0.2);
 }
 
 .calculate {
-  background: var(--primary-color);
-  color: white;
   grid-column: span 2;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  color: #fff;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(157, 0, 255, 0.4);
 }
 
 .calculate:hover {
-  background: #4f46e5;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+  box-shadow: 0 8px 30px rgba(157, 0, 255, 0.6), 0 0 30px rgba(255, 0, 234, 0.5);
+}
+
+.calculate:hover::before {
+  background: rgba(255, 255, 255, 0.2);
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
 import Display from "./components/Display";
 import ButtonsContainer from "./components/ButtonsContainer";
@@ -9,6 +9,37 @@ function App() {
   const [operator, setOperator] = useState(null);
   const [expression, setExpression] = useState("");
   const [isCalculated, setIsCalculated] = useState(false);
+  
+  const wrapperRef = useRef(null);
+  const [tiltStyle, setTiltStyle] = useState({ transform: "rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)" });
+
+  const handleMouseMove = (e) => {
+    if (!wrapperRef.current) return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Smooth 3D tilt
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    wrapperRef.current.style.setProperty("--mouseX", `${x}px`);
+    wrapperRef.current.style.setProperty("--mouseY", `${y}px`);
+
+    setTiltStyle({
+      transform: `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`,
+      transition: "transform 0.1s ease-out" // fast tracking
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTiltStyle({
+      transform: "perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
+      transition: "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)" // smooth return
+    });
+  };
 
   const evaluate = (prev, curr, op) => {
     const p = parseFloat(prev);
@@ -24,7 +55,6 @@ function App() {
   };
 
   const handleAction = useCallback((action) => {
-    // Numbers and Decimal
     if (/[0-9.]/.test(action)) {
       if (isCalculated) {
         setCurrentVal(action === "." ? "0." : action);
@@ -37,10 +67,8 @@ function App() {
         setCurrentVal((prev) => (prev === "0" && action !== "." ? action : prev + action));
       }
     } 
-    // Operators
     else if (["+", "-", "*", "/"].includes(action)) {
       if (currentVal === "Error") return;
-      
       let newPrev = previousVal;
       if (currentVal) {
         if (operator && previousVal && !isCalculated) {
@@ -51,23 +79,22 @@ function App() {
           setCurrentVal("");
         }
       }
-      
       setPreviousVal(newPrev);
       setOperator(action);
-      setExpression(`${newPrev} ${action}`);
+      let opSymbol = action === "*" ? "×" : action === "/" ? "÷" : action;
+      setExpression(`${newPrev} ${opSymbol}`);
       setIsCalculated(false);
     } 
-    // Calculate
     else if (action === "=" || action === "Enter") {
       if (!operator || !previousVal || !currentVal) return;
       const result = evaluate(previousVal, currentVal, operator);
       setCurrentVal(result);
-      setExpression(`${previousVal} ${operator} ${currentVal} =`);
+      let opSymbol = operator === "*" ? "×" : operator === "/" ? "÷" : operator;
+      setExpression(`${previousVal} ${opSymbol} ${currentVal} =`);
       setPreviousVal("");
       setOperator(null);
       setIsCalculated(true);
     } 
-    // Actions
     else if (action === "C" || action === "Escape") {
       setCurrentVal("");
       setPreviousVal("");
@@ -91,33 +118,33 @@ function App() {
     }
   }, [currentVal, previousVal, operator, isCalculated]);
 
-  // Keyboard support
   useEffect(() => {
     const handleKeyDown = (e) => {
       let key = e.key;
-      // map keys
-      if (key === "Enter") {
-        e.preventDefault();
-        handleAction("=");
-      } else if (key === "Backspace") {
-        handleAction("DEL");
-      } else if (key === "Escape") {
-        handleAction("C");
-      } else if (["+", "-", "*", "/", "%", "="].includes(key)) {
-        handleAction(key);
-      } else if (/[0-9.]/.test(key)) {
-        handleAction(key);
-      }
+      if (key === "Enter") { e.preventDefault(); handleAction("="); }
+      else if (key === "Backspace") handleAction("DEL");
+      else if (key === "Escape") handleAction("C");
+      else if (["+", "-", "*", "/", "%", "="].includes(key)) handleAction(key);
+      else if (/[0-9.]/.test(key)) handleAction(key);
     };
-    
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleAction]);
 
   return (
-    <div className="calculator">
-      <Display currentVal={currentVal} expression={expression} />
-      <ButtonsContainer onButtonClick={handleAction} />
+    <div 
+      className="calculator-wrapper" 
+      ref={wrapperRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="calculator" style={tiltStyle}>
+        <div className="glare" />
+        <div className="calc-inner">
+          <Display currentVal={currentVal} expression={expression} />
+          <ButtonsContainer onButtonClick={handleAction} />
+        </div>
+      </div>
     </div>
   );
 }
